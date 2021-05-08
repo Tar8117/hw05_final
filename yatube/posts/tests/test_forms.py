@@ -1,14 +1,13 @@
 import shutil
 import tempfile
 
+from http import HTTPStatus
 from django.conf import settings
 from django.test import Client, TestCase
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-
 from ..models import Group, Post, User
-from http import HTTPStatus
 
 
 class TestPostCreateForm(TestCase):

@@ -3,6 +3,7 @@ import tempfile
 
 from http import HTTPStatus
 from django import forms
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.shortcuts import reverse
 from django.test import TestCase, Client
@@ -19,6 +20,7 @@ class ViewsTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        settings.MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
         cls.user = User.objects.create_user(username='Ragnar')
         cls.group = Group.objects.create(
             title='Название',
@@ -28,6 +30,11 @@ class ViewsTests(TestCase):
             author=cls.user,
             text='текст',
             group=cls.group)
+
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
 
     def setUp(self):
         self.guest_client = Client()
@@ -211,11 +218,13 @@ class ViewsTests(TestCase):
             author=self.user,
             group=self.group,
             image=self.uploaded)
-        response = self.authorized_client.get(reverse('group_posts',
-                                                      kwargs={'slug': 'test-1'}))
+        response = self.authorized_client.get(
+            reverse('group_posts', kwargs={'slug': 'test-1'})
+        )
         posts = response.context.get('page').object_list
-        self.assertListEqual(list(posts),
-                             list(Post.objects.filter(author=self.user.id)))
+        self.assertListEqual(
+            list(posts), list(Post.objects.filter(author=self.user.id))
+        )
 
     def test_profile_image(self):
         Post.objects.create(
@@ -231,7 +240,7 @@ class ViewsTests(TestCase):
 
     def test_post_image(self):
         post = Post.objects.create(
-            text='This is a test',
+            text='test',
             author=self.user,
             group=self.group,
             image=self.uploaded
