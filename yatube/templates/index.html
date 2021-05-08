@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %} Последние обновления {% endblock %}
+
+{% block content %}
+{% load cache %}
+{% cache 20 index_page page%}
+    <div class="container">
+        {% include "includes/menu.html" with index=True %}
+           <h1> Последние обновления на сайте</h1>
+            <!-- Вывод ленты записей -->
+                {% for post in page %}
+                  <!-- Вот он, новый include! -->
+                    {% include "post_item.html" with post=post %}
+                {% endfor %}
+
+  </div>
+{% endcache %}
+
+    {% include 'includes/paginator.html' %}
+
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Страница пользователя{% endblock %}
+{% block header %}Профиль пользователя @{{ author.username }}{% endblock %}
+{% block content %}
+{% load user_filters %}
+{% load thumbnail %}
+
+<main role="main" class="container">
+  <div class="row">
+    <div class="col-md-15 mb-3 mt-1">
+      <div class="card">
+        <div class="card-body">
+          <div class="h2">
+      {% include 'includes/author_card.html' %}
+          </div>
+        <div class="col-md-9">
+          {% for post in page %}
+
+          {% include 'post_item.html' %}
+
+          {% endfor%}
+
+          {% include 'includes/paginator.html' %}
+        </div>
+    </div>
+        </div>
+      </div>
+  </div>
+</main>
+{% endblock %}
