@@ -41,16 +41,30 @@ def profile(request, username):
     paginator = Paginator(posts, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
-    return render(request, 'profile.html', {'author': user, 'page': page})
+    following = False
+    if request.user.is_authenticated:
+        following = Follow.objects.filter(
+            user=request.user,
+            author=user
+        ).exists()
+    return render(request, 'profile.html', {'author': user, 'page': page,
+                  'paginator': paginator, 'following': following})
 
 
 def post_view(request, username, post_id):
+    user = get_object_or_404(User, username=username)
     post = get_object_or_404(Post, id=post_id, author__username=username)
     form = CommentForm()
     comments = post.comments.all()
+    following = False
+    if request.user.is_authenticated:
+        following = Follow.objects.filter(
+            user=request.user,
+            author=user
+        ).exists()
     return render(request, 'post.html', {
         'author': post.author, 'post': post,
-        'form': form, 'comments': comments})
+        'form': form, 'comments': comments, 'following': following})
 
 
 @login_required
