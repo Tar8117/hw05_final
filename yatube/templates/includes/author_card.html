@@ -18,7 +18,7 @@
       <div class="h6 text-muted">
         Записей: {{ author.posts.all.count }}
       </div>
-
+        {% if user.is_authenticated and request.user != author %}
         <li class="list-group-item">
               {% if following %}
                   <a class="btn btn-lg btn-danger" href="{% url 'profile_unfollow' author.username %}" role="button">
@@ -29,6 +29,7 @@
                       Подписаться
                   </a>
               {% endif %}
+        {% endif %}
         </li>
   </ul>
 </div>

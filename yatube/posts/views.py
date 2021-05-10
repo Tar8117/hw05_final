@@ -1,11 +1,13 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.views.decorators.cache import cache_page
 
 from .models import Follow, Group, Post, User
 from .forms import PostForm, CommentForm
 
 
+@cache_page(60 * 20)
 def index(request):
     post_list = Post.objects.all()
     paginator = Paginator(post_list, 10)
@@ -26,7 +28,7 @@ def group_posts(request, slug):
 
 @login_required
 def new_post(request):
-    form = PostForm(request.POST or None)
+    form = PostForm(request.POST or None, files=request.FILES or None)
     if form.is_valid():
         post = form.save(commit=False)
         post.author = request.user
@@ -85,14 +87,12 @@ def post_edit(request, username, post_id):
 
 @login_required
 def add_comment(request, username, post_id):
-    # post = get_object_or_404(Post, id=post_id, author__username=username)
     form = CommentForm(request.POST or None)
     if form.is_valid():
         comment = form.save(commit=False)
         comment.author = request.user
-        comment.post = get_object_or_404(Post, pk=post_id)
+        comment.post = get_object_or_404(Post, pk=post_id, author__username=username)
         comment.save()
-        return redirect('post', username=username, post_id=post_id)
     return redirect('post', username=username, post_id=post_id)
 
 

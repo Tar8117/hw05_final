@@ -1,13 +1,7 @@
-<!-- Форма добавления комментария -->
 {% load user_filters %}
 
 {% if user.is_authenticated %}
- <!-- <style>
-   p {
-    font-family: Verdana, Arial, Helvetica, sans-serif;
-    font-size: 9pt; /* Размер шрифта в пунктах */
-   }
-  </style> -->
+
 <div class="card my-4">
     <form method="post" action="{% url 'add_comment' post.author.username post.id %}">
         {% csrf_token %}
@@ -22,7 +16,6 @@
 </div>
 {% endif %}
 
-<!-- Комментарии -->
 {% for item in comments %}
 <div class="media card mb-4">
     <div class="media-body card-body">
@@ -36,9 +29,7 @@
                <font size="2" color="black" face="Arial"> <em> {{ item.created|date:"d M Y H:i" }} </em> </font>
            </p>
 
-           <!-- <p>
-                <span class="note"> {{ item.created|date:"d M Y H:i" }} </span>
-            </p> -->
+
 
         </h5>
         <p>{{ item.text | linebreaksbr }}</p>

@@ -1,20 +1,22 @@
 import shutil
 import tempfile
-
 from http import HTTPStatus
+
 from django.conf import settings
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 from ..models import Group, Post, User
 
+MEDIA_ROOT = tempfile.mkdtemp()
 
+
+@override_settings(MEDIA_ROOT=MEDIA_ROOT)
 class TestPostCreateForm(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        settings.MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
         cls.user = User.objects.create_user(username='Ragnar')
         cls.group = Group.objects.create(
             title='Заголовок',
@@ -69,6 +71,7 @@ class TestPostCreateForm(TestCase):
         self.assertEqual(post.group.id, form_data['group'])
         self.assertEqual(Post.objects.count(), post_count + 1)
         self.assertEqual(response.status_code, HTTPStatus.OK)
+        self.assertEqual(post.image, post.image)
 
     def test_edit_post(self):
         """Тестируем редактирование поста"""

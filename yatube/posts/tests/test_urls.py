@@ -1,4 +1,5 @@
 from http import HTTPStatus
+
 from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
 
@@ -97,7 +98,6 @@ class PostURLTest(TestCase):
                 response = self.authorized_client.get(url)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
-    # Для спринта 6
     def test_url_404(self):
         """Доступность страницы 404"""
         response = self.guest_client.get('404/')
