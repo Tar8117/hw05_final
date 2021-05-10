@@ -1,13 +1,14 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.views.decorators.cache import cache_page
 
 from .models import Follow, Group, Post, User
 from .forms import PostForm, CommentForm
 
 
-@cache_page(60 * 20)
+# я попытался через декоратор кэш сделать,
+# но 6 тестов слетело,
+# решил оставить в индекс
 def index(request):
     post_list = Post.objects.all()
     paginator = Paginator(post_list, 10)
