@@ -6,9 +6,6 @@ from .models import Follow, Group, Post, User
 from .forms import PostForm, CommentForm
 
 
-# я попытался через декоратор кэш сделать,
-# но 6 тестов слетело,
-# решил оставить в индекс
 def index(request):
     post_list = Post.objects.all()
     paginator = Paginator(post_list, 10)
@@ -88,12 +85,13 @@ def post_edit(request, username, post_id):
 
 @login_required
 def add_comment(request, username, post_id):
+    post = get_object_or_404(
+        Post, pk=post_id, author__username=username)
     form = CommentForm(request.POST or None)
     if form.is_valid():
         comment = form.save(commit=False)
         comment.author = request.user
-        comment.post = get_object_or_404(
-            Post, pk=post_id, author__username=username)
+        comment.post = post
         comment.save()
     return redirect('post', username=username, post_id=post_id)
 

@@ -31,6 +31,19 @@ class ViewsTests(TestCase):
             author=cls.user,
             text='текст',
             group=cls.group)
+        small_gif = (
+            b'\x47\x49\x46\x38\x39\x61\x02\x00'
+            b'\x01\x00\x80\x00\x00\x00\x00\x00'
+            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
+            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
+            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
+            b'\x0A\x00\x3B'
+        )
+        cls.uploaded = SimpleUploadedFile(
+            name='small.gif',
+            content=small_gif,
+            content_type='image/gif'
+        )
 
     @classmethod
     def tearDownClass(cls):
@@ -41,19 +54,6 @@ class ViewsTests(TestCase):
         self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
-        small_gif = (
-            b'\x47\x49\x46\x38\x39\x61\x02\x00'
-            b'\x01\x00\x80\x00\x00\x00\x00\x00'
-            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
-            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
-            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-            b'\x0A\x00\x3B'
-        )
-        self.uploaded = SimpleUploadedFile(
-            name='small.gif',
-            content=small_gif,
-            content_type='image/gif'
-        )
 
     def test_pages_uses_correct_template(self):
         """Проверяем, что URL-адрес использует правильный шаблон"""
@@ -208,19 +208,17 @@ class ViewsTests(TestCase):
     def test_comment_not_auth_user(self):
         """Проверка возможности НЕавторизованного
         пользователя комментировать"""
-        self.guest_client.post(
+        response = self.guest_client.post(
             reverse('add_comment', kwargs={
                 'username': ViewsTests.user.username,
                 'post_id': ViewsTests.post.id}),
             data={'text': 'No comment'},
             follow=True)
-
-        self.assertFalse(
-            Comment.objects.filter(
-                text='No comment',
-                post_id=ViewsTests.post.id).exists())
+        self.assertNotContains(response, 'No comment')
 
     def test_index_image(self):
+        """Проверка context страницы index
+        на наличие изображения"""
         Post.objects.create(
             text='test',
             author=self.user,
@@ -228,10 +226,13 @@ class ViewsTests(TestCase):
             image=self.uploaded
         )
         response = self.authorized_client.get(reverse('index'))
-        posts = response.context.get('page').object_list
-        self.assertListEqual(list(posts), list(Post.objects.all()[:10]))
+        page = response.context.get('page')
+        # сделал чуть по другому. не знаю пойдет или нет
+        self.assertIsNotNone(page[0].image)
 
     def test_group_image(self):
+        """Проверка context страницы group
+        на наличие изображения"""
         Post.objects.create(
             text='test',
             author=self.user,
@@ -243,6 +244,8 @@ class ViewsTests(TestCase):
         self.assertContains(response, '<img')
 
     def test_profile_image(self):
+        """Проверка context страницы profile
+        на наличие изображения"""
         Post.objects.create(
             text='test',
             author=self.user,
@@ -252,6 +255,8 @@ class ViewsTests(TestCase):
         self.assertContains(response, '<img')
 
     def test_post_image(self):
+        """Проверка context страницы post
+        на наличие изображения"""
         post = Post.objects.create(
             text='test',
             author=self.user,

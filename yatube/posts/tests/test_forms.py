@@ -71,7 +71,7 @@ class TestPostCreateForm(TestCase):
         self.assertEqual(post.group.id, form_data['group'])
         self.assertEqual(Post.objects.count(), post_count + 1)
         self.assertEqual(response.status_code, HTTPStatus.OK)
-        self.assertEqual(post.image, post.image)
+        self.assertEqual(post.image, f'posts/{uploaded.name}')
 
     def test_edit_post(self):
         """Тестируем редактирование поста"""
