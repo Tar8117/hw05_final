@@ -91,7 +91,8 @@ def add_comment(request, username, post_id):
     if form.is_valid():
         comment = form.save(commit=False)
         comment.author = request.user
-        comment.post = get_object_or_404(Post, pk=post_id, author__username=username)
+        comment.post = get_object_or_404(
+            Post, pk=post_id, author__username=username)
         comment.save()
     return redirect('post', username=username, post_id=post_id)
 
